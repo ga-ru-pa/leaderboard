@@ -1,5 +1,7 @@
 # leaderboard
-leaderboard for garupa unofficial score ranking
+leaderboard for garupa unofficial score ranking.
+
+[Github Pages](https://ga-ru-pa.github.io/leaderboard/)
 
 ## memo
 ```
