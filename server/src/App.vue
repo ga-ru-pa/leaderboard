@@ -12,44 +12,24 @@
 
     <hr/>
     <div v-if="selected_title_id === null">
-      タイトルを選択すると、ランキングが表示されます。
+      Loading
     </div>
     <div v-else>
-      <label class="label garupa">参加方法</label>
+      <label class="label garupa">開催期間</label>
       <div class="control">
-        <ul>
-          <li>①リザルトを添付し、 ②本文に総合力とスキル内訳(（例）125-120-100-100-100 順番は問わない) を含めて@garupa_yatteru に連絡してください。</li>
-          <li>こちらで確認した内容を反映します。手作業のため、漏れやミスがあるかもしれません。お気付きの場合はその旨ご連絡ください。</li>
-        </ul>
+        {{start_datetime.toLocaleString()}} ~ {{end_datetime.toLocaleString()}}
       </div>
 
       <label class="label garupa">ルール</label>
       <div class="control">
         <ul>
+          <li>参加方法は<a href="#participate">こちら</a></li>
           <li>スコアランキングと、スコア率ランキングの2種類があります。</li>
-          <li>スコア率は、達成スコア / (提出された編成でリズム通りにAPした場合のスコアの最大値) で算出されます。編成によって差が生じるので、参考程度にお考えください。</li>
+          <li>スコア率は、(達成スコア) / (提出された編成でリズム通りにAPした場合のスコアの最大値) で算出されます。編成によって上限値が異なります。</li>
         </ul>
       </div>
+
       <div class="rankings">
-        <label class="label garupa">スコアランキング</label>
-        <div class="control" v-for="(row, index) in ranking1" :key="index">
-          <div style="display:inline-block;width:600px;">
-            <div class="ranking-container">
-              <div class="ranking-rank ribbon">
-                <h3>{{ index + 1 }}位</h3>
-              </div>
-              <div style="width:100%">
-                <div class="ranking-name-rating">
-                  <div class="ranking-name">{{ row.name }}</div>
-                </div>
-                <div class="ranking-team-score">
-                  <div class="ranking-team">{{ row.team + " / 総合力: " + row.power + " / スキル: " + row.skill }}</div>
-                  <div class="ranking-score">{{ row.score }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         <label class="label garupa">スコア率ランキング</label>
         <div class="control" v-for="(row, index) in ranking2" :key="row.name">
           <div style="display:inline-block;width:600px;">
@@ -69,7 +49,71 @@
             </div>
           </div>
         </div>
+        <label class="label garupa">スコアランキング</label>
+        <div class="control" v-for="(row, index) in ranking1" :key="index">
+          <div style="display:inline-block;width:600px;">
+            <div class="ranking-container">
+              <div class="ranking-rank ribbon">
+                <h3>{{ index + 1 }}位</h3>
+              </div>
+              <div style="width:100%">
+                <div class="ranking-name-rating">
+                  <div class="ranking-name">{{ row.name }}</div>
+                </div>
+                <div class="ranking-team-score">
+                  <div class="ranking-team">{{ row.team + " / 総合力: " + row.power + " / スキル: " + row.skill }}</div>
+                  <div class="ranking-score">{{ row.score }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <label name="participate" id="participate" class="label garupa">参加方法</label>
+      <div class="control">
+        以下の内容を@garupa_yatteru に送ってください。
+        <table class="table is-striped" style="font-size:10px;">
+          <tr>
+            <th>項目</th>
+            <th>必須</th>
+            <th>備考</th>
+            <th>例</th>
+          </tr>
+          <tr>
+            <td>スコア</td>
+            <td>*</td>
+            <td>リザルトのスクリーンショットなど。</td>
+            <td>2012345</td>
+          </tr>
+          <tr>
+            <td>名前</td>
+            <td></td>
+            <td>好きな文字を利用可。なければこちらで適当につけます。</td>
+            <td>👮</td>
+          </tr>
+          <tr>
+            <td>編成</td>
+            <td></td>
+            <td>ランキングに表示されます。</td>
+            <td>クールパスパレ</td>
+          </tr>
+          <tr>
+            <td>総合力</td>
+            <td>*</td>
+            <td>スコア率の計算に使います。</td>
+            <td>297691</td>
+          </tr>
+          <tr>
+            <td>スキル</td>
+            <td>*</td>
+            <td>スコア率の計算に使います。</td>
+            <td>125-120-120-115-115</td>
+          </tr>
+        </table>
+        手作業で更新するため、漏れやミスがあるかもしれません。お気付きの場合はご連絡ください。
+      </div>
+
     </div>
   </div>
 </template>
@@ -80,7 +124,10 @@ export default {
   data () {
     return {
       selected_title_id: null,
+      start_datetime: null,
+      end_datetime: null,
       titles: null,
+      titles_rev_order: null,
       scores: null,
       ranking1: null,
       ranking2: null
@@ -89,12 +136,15 @@ export default {
   async mounted () {
     this.titles = (await this.axios.get('https://raw.githubusercontent.com/ga-ru-pa/leaderboard-data/main/titles.json')).data.titles
     this.selected_title_id = this.titles[0].id
+    this.titles_rev_order = this.titles.map(list => ({...list})).sort((a, b) => a.id - b.id)
   },
   watch: {
     async selected_title_id () {
       this.scores = (await this.axios.get('https://raw.githubusercontent.com/ga-ru-pa/leaderboard-data/main/' + this.selected_title_id + '/scores.json')).data.scores
       this.ranking1 = this.scores.map(list => ({...list})).sort((a, b) => b.score !== a.score ? b.score - a.score : a.unixtime - b.unixtime)
-      this.ranking2 = this.scores.sort((a, b) => b.score * a.jap_score - a.score * b.jap_score)
+      this.ranking2 = this.scores.sort((a, b) => b.score * a.jap_score !== a.score * b.jap_score ? b.score * a.jap_score - a.score * b.jap_score : a.unixtime - b.unixtime)
+      this.start_datetime = new Date(this.titles_rev_order[this.selected_title_id].start_datetime)
+      this.end_datetime = new Date(this.titles_rev_order[this.selected_title_id].end_datetime)
     }
   }
 }
