@@ -143,8 +143,8 @@ export default {
       this.scores = (await this.axios.get('https://raw.githubusercontent.com/ga-ru-pa/leaderboard-data/main/' + this.selected_title_id + '/scores.json')).data.scores
       this.ranking1 = this.scores.map(list => ({...list})).sort((a, b) => b.score !== a.score ? b.score - a.score : a.unixtime - b.unixtime)
       this.ranking2 = this.scores.sort((a, b) => b.score * a.jap_score !== a.score * b.jap_score ? b.score * a.jap_score - a.score * b.jap_score : a.unixtime - b.unixtime)
-      this.start_datetime = new Date(this.titles_rev_order[this.selected_title_id].start_datetime)
-      this.end_datetime = new Date(this.titles_rev_order[this.selected_title_id].end_datetime)
+      this.start_datetime = new Date(this.titles_rev_order[this.selected_title_id].start_datetime.replace(/-/g, '/'))
+      this.end_datetime = new Date(this.titles_rev_order[this.selected_title_id].end_datetime.replace(/-/g, '/'))
     }
   }
 }
