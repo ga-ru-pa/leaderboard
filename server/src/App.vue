@@ -180,7 +180,7 @@ select.garupa {
 }
 
 select {
-  font-size: 1rem;
+  font-size: 16px;
   box-shadow: inset 1px 1px #333;
 }
 
