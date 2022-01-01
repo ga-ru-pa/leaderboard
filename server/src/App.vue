@@ -92,7 +92,7 @@
                 <div class="ranking-name">{{ row.name }}</div>
               </div>
               <div class="ranking-team-score">
-                <div class="ranking-team">{{ row.team + " / 総合力: " + row.power + " / スキル: " + row.skill }}</div>
+                <div class="ranking-team">{{ `${row.team} / 総合力: ${row.power} / スキル: ${row.skill} / JustAPスコア: ${row.jap_score}` }}</div>
                 <div class="ranking-score">{{ (row.score*100/row.jap_score).toFixed(3) + "%" }}</div>
               </div>
             </div>
@@ -109,7 +109,7 @@
                 <div class="ranking-name">{{ row.name }}</div>
               </div>
               <div class="ranking-team-score">
-                <div class="ranking-team">{{ row.team + " / 総合力: " + row.power + " / スキル: " + row.skill }}</div>
+                <div class="ranking-team">{{ `${row.team} / 総合力: ${row.power} / スキル: ${row.skill} / JustAPスコア: ${row.jap_score}` }}</div>
                 <div class="ranking-score">{{ row.score }}</div>
               </div>
             </div>
